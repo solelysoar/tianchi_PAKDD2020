@@ -43,7 +43,7 @@ def day_tag(x, holidays):
         return 4
 
 
-def build_feature(df, day_ahead, first_day, tag, ori_fea_list):
+def build_feature(df, day_ahead, ori_fea_list):
     """
     针对df对部分特征进行transform，并生成新的衍生特征
     :param df: 原始数据
@@ -53,6 +53,16 @@ def build_feature(df, day_ahead, first_day, tag, ori_fea_list):
     :param ori_fea_list: 挑选的原始特征列表
     :return: 加入了新特征的数据
     """
+    # 读取需要的文件
+    tag = pd.read_csv('../data/disk_sample_fault_tag.csv')  # <----改路径！
+    tag['fault_time'] = pd.to_datetime(tag['fault_time'])
+    tag['tag'] = tag['tag'].astype(str)
+    tag = tag.groupby(['serial_number', 'fault_time', 'model'])['tag'].apply(lambda x: '|'.join(x)).reset_index()
+    tag.columns = ['serial_number', 'fault_time_1', 'model', 'tag']
+
+    first_day = pd.read_csv('../user_data/tmp_data/first_use_day.csv')  # <----改路径！
+    first_day.dt_first = pd.to_datetime(first_day.dt_first)
+
     # 特征定义
     log_features = [i for i in ori_fea_list if "raw" in i]
     holidays = pd.to_datetime(["2017-7-1", "2017-9-1", "2017-10-01", "2017-10-08", "2017-11-1", "2017-12-30",
@@ -93,4 +103,9 @@ def build_feature(df, day_ahead, first_day, tag, ori_fea_list):
     df['serial_number'] = df['serial_number'].apply(lambda x: int(x.split('_')[1]))
     df['serial_number'] = df['serial_number'].astype("category")
 
-    return df
+    return_columns = [i for i in ori_fea_list if i not in ['dt','manufacturer']] + \
+                     [i+'_slope' for i in ori_fea_list if i not in ['dt', 'manufacturer', 'model', 'serial_number']] + \
+                     ['days', 'month', 'days_to_next_holiday', 'days_to_last_holiday'] + \
+                     ['label']
+
+    return df[return_columns]
