@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 import joblib
+import gc
 from feature.generation import build_feature
 
 
@@ -11,15 +12,15 @@ def train_model(train_data, val_data, clf, n_ahead, ori_fea_list):
     # 准备数据
     train_data = build_feature(train_data, day_ahead=n_ahead, ori_fea_list=ori_fea_list)
     train_y = train_data["label"].values
-    train_x = train_data[feature_name]
+    train_x = train_data.drop(["label"], axis=1)
     val_data = build_feature(val_data, day_ahead=n_ahead, ori_fea_list=ori_fea_list)
     val_y = val_data["label"].values
-    val_x = val_data[feature_name]
+    val_x = val_data.drop(["label"], axis=1)
 
     clf = train(clf, train_x, train_y, val_x, val_y, n_early_stop=150, n_verbose=100)
 
     # 保存模型
-    joblib.dump(clf, 'clf_{}.pkl'.format(i_train))
+    joblib.dump(clf, './model_saved/lgb_1.pkl')
 
     del train_x, train_y, val_x, val_y
     gc.collect()
