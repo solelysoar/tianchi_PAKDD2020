@@ -3,8 +3,11 @@
 import pandas as pd
 import numpy as np
 import gc
+import swifter
 
 from datetime import timedelta
+import warnings
+warnings.filterwarnings("ignore")
 
 
 def distance_to_next_holiday(x, holidays):
@@ -113,15 +116,4 @@ def build_feature(df, day_ahead, ori_fea_list):
     df['serial_number'] = df['serial_number'].apply(lambda x: int(x.split('_')[1]))
     df['serial_number'] = df['serial_number'].astype("category")
 
-    if "label" in df.columns:
-        return_columns = [i for i in ori_fea_list if i not in ['dt','manufacturer']] + \
-                         [i+'_slope' for i in ori_fea_list if i not in ['dt', 'manufacturer', 'model', 'serial_number']] + \
-                         ['days', 'month', 'days_to_next_holiday', 'days_to_last_holiday'] + \
-                         ['label']
-    else:
-        return_columns = [i for i in ori_fea_list if i not in ['dt', 'manufacturer']] + \
-                         [i + '_slope' for i in ori_fea_list if
-                          i not in ['dt', 'manufacturer', 'model', 'serial_number']] + \
-                         ['days', 'month', 'days_to_next_holiday', 'days_to_last_holiday']
-
-    return df[return_columns]
+    return df

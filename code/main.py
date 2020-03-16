@@ -3,11 +3,13 @@
 import pandas as pd
 import joblib
 import gc
-from datetime import timedelta
+from datetime import datetime, timedelta
 from lightgbm.sklearn import LGBMClassifier
 
 from feature.generation import build_feature
 from model.lgb_model import train
+import warnings
+warnings.filterwarnings("ignore")
 
 
 def read_data(month_list):
@@ -20,11 +22,13 @@ def read_data(month_list):
     return data
 
 
-def read_submit_test_data(day_ahead):
-    df_2018_7 = joblib.load("../user_data/tmp_data/train_2018_7.jl.z")  # <----改路径！
+def read_submit_test_data(day_ahead, test_data_set):
+    df_2018_7 = joblib.load("../user_data/tmp_data/train_2018_7.jl.z")
     df_2018_7 = df_2018_7[df_2018_7["dt"] >= df_2018_7["dt"].max() - timedelta(days=day_ahead)]
 
-    df_test = pd.read_csv('../data/testA/disk_sample_smart_log_test_a.csv')  # <----改路径！
+    test_data_set_lc = test_data_set.lower()  # 把A转为a
+    df_test = pd.read_csv('../data/round1_test{}/disk_sample_smart_log_test_{}.csv'.format(test_data_set,
+                                                                                           test_data_set_lc))
     df_test['dt'] = pd.to_datetime(df_test['dt'], format="%Y%m%d")
     disk_mark = df_test.drop_duplicates(["manufacturer", "model", "serial_number"])
     disk_mark["in_test"] = 1
@@ -93,14 +97,20 @@ if __name__ == '__main__':
                     'smart_197raw',
                     'smart_190raw',
                     'smart_188_normalized']
+    total_features = [i for i in ori_fea_list if i not in ['dt', 'manufacturer']] + \
+                     [i + '_slope' for i in ori_fea_list if i not in ['dt', 'manufacturer', 'model', 'serial_number']] + \
+                     ['days', 'month', 'days_to_next_holiday', 'days_to_last_holiday']
 
     # 参数定义
     n_ahead = 3
+    start_time = datetime.now()  # 计时用的
 
+    print("start reading data for training...")
     train_data = read_data(["2018_5", "2018_6"])
+    print("start extract features...")
     train_data = build_feature(train_data, n_ahead, ori_fea_list)
     train_y = train_data["label"].values
-    train_x = train_data.drop(["label"], axis=1)
+    train_x = train_data[total_features]
 
     model = LGBMClassifier(
         learning_rate=0.001,
@@ -114,12 +124,14 @@ if __name__ == '__main__':
 
     model = train(model, train_x, train_y, val_x=train_x, val_y=train_y, n_early_stop=10, n_verbose=10)
 
-    test = read_submit_test_data(n_ahead)
+    print("start predict given dataset...")
+    test_set = "A"  # 如果是预测b榜，请改为B
+    test = read_submit_test_data(n_ahead, test_set)
     test = test.sort_values(['serial_number', 'dt'])
     test = test.drop_duplicates().reset_index(drop=True)
-
     sub = test[['manufacturer', 'model', 'serial_number', 'dt']]
-    test_x = build_feature(test, n_ahead, ori_fea_list)
+    test = build_feature(test, n_ahead, ori_fea_list)
+    test_x = test[total_features]
 
     result = model.predict_proba(test_x)[:, 1]
     sub['p'] = result
@@ -134,3 +146,5 @@ if __name__ == '__main__':
     # 保存结果
     submit[['manufacturer', 'model', 'serial_number', 'dt']].to_csv(
         "../prediction_result/predictions.csv", index=False, header=None)
+    print("prediction done, please head to prediction_result folder to check!")
+    print("total time used: {}".format(datetime.now() - start_time))
