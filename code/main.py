@@ -130,3 +130,7 @@ if __name__ == '__main__':
         result_today = sub[sub["dt"] == day]
         submit = submit.append(result_today[result_today["p"] >= p_threshold], sort=False)
     submit = submit.drop_duplicates(['serial_number', 'model'])
+
+    # 保存结果
+    submit[['manufacturer', 'model', 'serial_number', 'dt']].to_csv(
+        "../prediction_result/predictions.csv", index=False, header=None)
