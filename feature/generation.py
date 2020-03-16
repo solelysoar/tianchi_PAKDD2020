@@ -63,6 +63,9 @@ def build_feature(df, day_ahead, ori_fea_list):
     first_day = pd.read_csv('../user_data/tmp_data/first_use_day.csv')  # <----改路径！
     first_day.dt_first = pd.to_datetime(first_day.dt_first)
 
+    fault_disk_dt_last = pd.read_csv('../user_data/tmp_data/fault_disk_dt_last.csv')
+    fault_disk_dt_last.dt_last = pd.to_datetime(fault_disk_dt_last.dt_last)
+
     # 特征定义
     log_features = [i for i in ori_fea_list if "raw" in i]
     holidays = pd.to_datetime(["2017-7-1", "2017-9-1", "2017-10-01", "2017-10-08", "2017-11-1", "2017-12-30",
@@ -72,6 +75,13 @@ def build_feature(df, day_ahead, ori_fea_list):
 
     # 特征提取
     df = df.merge(first_day, how='left', on=["manufacturer", "model", "serial_number"])
+    print("去掉噪音点之前的shape：{}".format(df.shape))
+    # 去掉坏盘的最后一天噪音记录
+    df = df.merge(fault_disk_dt_last, how='left', on=["manufacturer", "model", "serial_number"])
+    df["should_drop"] = df.swifter.progress_bar(enable=True).apply(
+        lambda x: 1 if x["fault_time"] < x["dt"] else 0, axis=1)
+    df = df[df["should_drop"] == 0]
+    print("去掉噪音点之后的shape：{}".format(df.shape))
     print("特征做log变换")
     for column in log_features:
         df[column] = df[column].apply(lambda x: np.log1p(x))
@@ -103,9 +113,15 @@ def build_feature(df, day_ahead, ori_fea_list):
     df['serial_number'] = df['serial_number'].apply(lambda x: int(x.split('_')[1]))
     df['serial_number'] = df['serial_number'].astype("category")
 
-    return_columns = [i for i in ori_fea_list if i not in ['dt','manufacturer']] + \
-                     [i+'_slope' for i in ori_fea_list if i not in ['dt', 'manufacturer', 'model', 'serial_number']] + \
-                     ['days', 'month', 'days_to_next_holiday', 'days_to_last_holiday'] + \
-                     ['label']
+    if "label" in df.columns:
+        return_columns = [i for i in ori_fea_list if i not in ['dt','manufacturer']] + \
+                         [i+'_slope' for i in ori_fea_list if i not in ['dt', 'manufacturer', 'model', 'serial_number']] + \
+                         ['days', 'month', 'days_to_next_holiday', 'days_to_last_holiday'] + \
+                         ['label']
+    else:
+        return_columns = [i for i in ori_fea_list if i not in ['dt', 'manufacturer']] + \
+                         [i + '_slope' for i in ori_fea_list if
+                          i not in ['dt', 'manufacturer', 'model', 'serial_number']] + \
+                         ['days', 'month', 'days_to_next_holiday', 'days_to_last_holiday']
 
     return df[return_columns]
