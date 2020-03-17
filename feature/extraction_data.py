@@ -17,7 +17,13 @@ def prepare_tmp_data(tmp_file_needed, ori_fea_list):
     exist_tmp_file = os.listdir("../user_data/tmp_data")
     process_file = [i for i in tmp_file_needed if i not in exist_tmp_file]
     for file in process_file:
-        ori_data = pd.read_csv(os.path.join('../data/round1_train', get_ori_data_file_name(file)))
+        # 分chunk_size读取，避免内存需量不足
+        chunk_size = 10 ** 6
+        filename = os.path.join('../data/round1_train', get_ori_data_file_name(file))
+        ori_data = pd.DataFrame([])
+        for chunk in pd.read_csv(filename, chunksize=chunk_size):
+            print(chunk.shape)
+            ori_data = pd.concat([ori_data, chunk], axis=0, sort=False)
         data = ori_data[ori_fea_list]
         del ori_data
         gc.collect()
