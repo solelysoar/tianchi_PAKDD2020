@@ -3,10 +3,12 @@
 import pandas as pd
 import joblib
 import gc
+import os
 from datetime import datetime, timedelta
 from lightgbm.sklearn import LGBMClassifier
 
 from feature.generation import build_feature
+from feature.extraction_data import prepare_tmp_data
 from model.lgb_model import train
 import warnings
 warnings.filterwarnings("ignore")
@@ -100,6 +102,14 @@ if __name__ == '__main__':
     total_features = [i for i in ori_fea_list if i not in ['dt', 'manufacturer']] + \
                      [i + '_slope' for i in ori_fea_list if i not in ['dt', 'manufacturer', 'model', 'serial_number']] + \
                      ['days', 'month', 'days_to_next_holiday', 'days_to_last_holiday']
+
+    # 判断是否需要进行临时数据的准备
+    clean_file_list = ["train_2017_7.jl.z", "train_2017_8.jl.z", "train_2017_9.jl.z", "train_2017_10.jl.z",
+                       "train_2017_11.jl.z", "train_2017_12.jl.z", "train_2018_1.jl.z", "train_2018_2.jl.z",
+                       "train_2018_3.jl.z", "train_2018_4.jl.z", "train_2018_5.jl.z", "train_2018_6.jl.z",
+                       "train_2018_7.jl.z"]
+    if clean_file_list not in os.listdir("../user_data/tmp_data"):
+        prepare_tmp_data(clean_file_list, ori_fea_list)
 
     # 参数定义
     n_ahead = 3
