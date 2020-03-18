@@ -25,8 +25,9 @@ def read_data(month_list):
 
 
 def read_submit_test_data(day_ahead, test_data_set):
+    max_ahead = max(day_ahead)
     df_2018_7 = joblib.load("./user_data/tmp_data/train_2018_7.jl.z")
-    df_2018_7 = df_2018_7[df_2018_7["dt"] >= df_2018_7["dt"].max() - timedelta(days=day_ahead)]
+    df_2018_7 = df_2018_7[df_2018_7["dt"] >= df_2018_7["dt"].max()-timedelta(days=max_ahead)]
 
     test_data_set_lc = test_data_set.lower()  # 把A转为a
     df_test = pd.read_csv('./data/round1_test{}/disk_sample_smart_log_test_{}.csv'.format(test_data_set,
