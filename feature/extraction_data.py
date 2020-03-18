@@ -6,19 +6,19 @@ import joblib
 
 
 def prepare_tmp_data(tmp_file_needed, ori_fea_list):
-    tag = pd.read_csv('../data/round1_train/disk_sample_fault_tag.csv')
+    tag = pd.read_csv('./data/round1_train/disk_sample_fault_tag.csv')
     tag['fault_time'] = pd.to_datetime(tag['fault_time'])
 
     # tag表里面有的硬盘同一天发生几种故障， 删掉多余的记录
     tag = tag.drop_duplicates(["manufacturer", "model", "serial_number"])
 
     # 判断哪些数据需要处理
-    exist_tmp_file = os.listdir("../user_data/tmp_data")
+    exist_tmp_file = os.listdir("./user_data/tmp_data")
     process_file = [i for i in tmp_file_needed if i not in exist_tmp_file]
     for file in process_file:
         # 分chunk_size读取，避免内存需量不足
         chunk_size = 10 ** 6
-        filename = os.path.join('../data/round1_train', get_ori_data_file_name(file))
+        filename = os.path.join('./data/round1_train', get_ori_data_file_name(file))
         ori_data = pd.DataFrame([])
         for chunk in pd.read_csv(filename, chunksize=chunk_size):
             ori_data = pd.concat([ori_data, chunk], axis=0, sort=False)
@@ -26,7 +26,7 @@ def prepare_tmp_data(tmp_file_needed, ori_fea_list):
         del ori_data
         gc.collect()
         data = get_label(data, tag)
-        joblib.dump(data, os.path.join('../user_data/tmp_data', file))
+        joblib.dump(data, os.path.join('./user_data/tmp_data', file))
         print("finished_process: {}".format(file))
         del data
         gc.collect()

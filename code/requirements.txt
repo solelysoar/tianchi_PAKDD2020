@@ -4,3 +4,4 @@ scikit-learn >= 0.22.2
 swifter >= 0.301
 joblib >= 0.14.1
 lightgbm >= 2.3.1
+dask == 2.11.0

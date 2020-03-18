@@ -30,7 +30,7 @@ def read_submit_test_data(day_ahead, test_data_set):
 
     test_data_set_lc = test_data_set.lower()  # 把A转为a
     df_test = pd.read_csv('./data/round1_test{}/disk_sample_smart_log_test_{}.csv'.format(test_data_set,
-                                                                                           test_data_set_lc))
+                                                                                          test_data_set_lc))
     df_test['dt'] = pd.to_datetime(df_test['dt'], format="%Y%m%d")
     disk_mark = df_test.drop_duplicates(["manufacturer", "model", "serial_number"])
     disk_mark["in_test"] = 1
