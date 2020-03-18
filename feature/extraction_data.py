@@ -16,6 +16,7 @@ def prepare_tmp_data(tmp_file_needed, ori_fea_list):
     exist_tmp_file = os.listdir("./user_data/tmp_data")
     process_file = [i for i in tmp_file_needed if i not in exist_tmp_file]
     for file in process_file:
+        print("start process file {}".format(file))
         # 分chunk_size读取，避免内存需量不足
         chunk_size = 10 ** 6
         filename = os.path.join('./data/round1_train', get_ori_data_file_name(file))
