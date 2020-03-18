@@ -1,5 +1,6 @@
 *.z
 *.csv
+*.pkl
 !.gitkeep
 !.gitignore
 !fault_disk_dt_last.csv
