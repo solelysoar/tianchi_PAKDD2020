@@ -10,10 +10,10 @@ def train_model(train_data, val_data, clf, n_ahead, ori_fea_list):
     用于训练模型时训练集和验证集不一样的情况
     '''
     # 准备数据
-    train_data = build_feature(train_data, ori_fea_list=ori_fea_list)
+    train_data = build_feature(train_data, day_ahead=n_ahead, ori_fea_list=ori_fea_list)
     train_y = train_data["label"].values
     train_x = train_data.drop(["label"], axis=1)
-    val_data = build_feature(val_data, ori_fea_list=ori_fea_list)
+    val_data = build_feature(val_data, day_ahead=n_ahead, ori_fea_list=ori_fea_list)
     val_y = val_data["label"].values
     val_x = val_data.drop(["label"], axis=1)
 

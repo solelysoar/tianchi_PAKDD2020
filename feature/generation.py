@@ -57,16 +57,16 @@ def build_feature(df, day_ahead, ori_fea_list):
     :return: 加入了新特征的数据
     """
     # 读取需要的文件
-    tag = pd.read_csv('../data/round1_train/disk_sample_fault_tag.csv')  # <----改路径！
+    tag = pd.read_csv('./data/round1_train/disk_sample_fault_tag.csv')  # <----改路径！
     tag['fault_time'] = pd.to_datetime(tag['fault_time'])
     tag['tag'] = tag['tag'].astype(str)
     tag = tag.groupby(['serial_number', 'fault_time', 'model'])['tag'].apply(lambda x: '|'.join(x)).reset_index()
     tag.columns = ['serial_number', 'fault_time_1', 'model', 'tag']
 
-    first_day = pd.read_csv('../user_data/tmp_data/first_use_day.csv')  # <----改路径！
+    first_day = pd.read_csv('./user_data/tmp_data/first_use_day.csv')  # <----改路径！
     first_day.dt_first = pd.to_datetime(first_day.dt_first)
 
-    fault_disk_dt_last = pd.read_csv('../user_data/tmp_data/fault_disk_dt_last.csv')
+    fault_disk_dt_last = pd.read_csv('./user_data/tmp_data/fault_disk_dt_last.csv')
     fault_disk_dt_last.dt_last = pd.to_datetime(fault_disk_dt_last.dt_last)
 
     # 特征定义

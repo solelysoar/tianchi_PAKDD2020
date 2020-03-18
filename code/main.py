@@ -15,9 +15,9 @@ warnings.filterwarnings("ignore")
 
 
 def read_data(month_list):
-    data = joblib.load('../user_data/tmp_data/train_' + month_list[0] + '.jl.z')  # <----改路径！
+    data = joblib.load('./user_data/tmp_data/train_' + month_list[0] + '.jl.z')  # <----改路径！
     for i_read in range(1, len(month_list)):
-        next_df = joblib.load('../user_data/tmp_data/train_' + month_list[i_read] + '.jl.z')  # <----改路径！
+        next_df = joblib.load('./user_data/tmp_data/train_' + month_list[i_read] + '.jl.z')  # <----改路径！
         data = pd.concat([data, next_df], axis=0, sort=False)
         del next_df
     gc.collect()
@@ -25,11 +25,11 @@ def read_data(month_list):
 
 
 def read_submit_test_data(day_ahead, test_data_set):
-    df_2018_7 = joblib.load("../user_data/tmp_data/train_2018_7.jl.z")
+    df_2018_7 = joblib.load("./user_data/tmp_data/train_2018_7.jl.z")
     df_2018_7 = df_2018_7[df_2018_7["dt"] >= df_2018_7["dt"].max() - timedelta(days=day_ahead)]
 
     test_data_set_lc = test_data_set.lower()  # 把A转为a
-    df_test = pd.read_csv('../data/round1_test{}/disk_sample_smart_log_test_{}.csv'.format(test_data_set,
+    df_test = pd.read_csv('./data/round1_test{}/disk_sample_smart_log_test_{}.csv'.format(test_data_set,
                                                                                            test_data_set_lc))
     df_test['dt'] = pd.to_datetime(df_test['dt'], format="%Y%m%d")
     disk_mark = df_test.drop_duplicates(["manufacturer", "model", "serial_number"])
@@ -49,9 +49,6 @@ def read_submit_test_data(day_ahead, test_data_set):
 
 
 if __name__ == '__main__':
-    # 改变工作目录
-    os.chdir('../')
-
     # 筛选后的原始特征顺序
     ori_fea_list = ['smart_7raw',
                     'smart_198raw',
@@ -108,7 +105,7 @@ if __name__ == '__main__':
 
     # 判断是否需要进行临时数据的准备
     clean_file_list = ["train_2018_5.jl.z", "train_2018_6.jl.z", "train_2018_7.jl.z"]
-    exist_files = os.listdir("../user_data/tmp_data")
+    exist_files = os.listdir("./user_data/tmp_data")
     to_clean = [1 if file not in exist_files else 0 for file in clean_file_list]
     if sum(to_clean) != 0:
         prepare_tmp_data(clean_file_list, ori_fea_list)
@@ -136,7 +133,7 @@ if __name__ == '__main__':
 
     model = train(model, train_x, train_y, val_x=train_x, val_y=train_y, n_early_stop=10, n_verbose=10)
     # 保存模型结果
-    joblib.dump(model, "../model/model_saved/lgb_round1.pkl")
+    joblib.dump(model, "./model/model_saved/lgb_round1.pkl")
 
     test_set = "B"  # 如果是预测A榜，请改为A
     print("start predict given dataset round1_{}...".format(test_set))
@@ -159,6 +156,6 @@ if __name__ == '__main__':
 
     # 保存结果
     submit[['manufacturer', 'model', 'serial_number', 'dt']].to_csv(
-        "../prediction_result/predictions.csv", index=False, header=None)
+        "./prediction_result/predictions.csv", index=False, header=None)
     print("prediction done, please head to prediction_result folder to check!")
     print("total time used: {}".format(datetime.now() - start_time))
