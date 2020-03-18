@@ -49,6 +49,9 @@ def read_submit_test_data(day_ahead, test_data_set):
 
 
 if __name__ == '__main__':
+    # 改变工作目录
+    os.chdir('../')
+
     # 筛选后的原始特征顺序
     ori_fea_list = ['smart_7raw',
                     'smart_198raw',
