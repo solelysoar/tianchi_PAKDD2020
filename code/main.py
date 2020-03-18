@@ -108,11 +108,13 @@ if __name__ == '__main__':
                        "train_2017_11.jl.z", "train_2017_12.jl.z", "train_2018_1.jl.z", "train_2018_2.jl.z",
                        "train_2018_3.jl.z", "train_2018_4.jl.z", "train_2018_5.jl.z", "train_2018_6.jl.z",
                        "train_2018_7.jl.z"]
-    if clean_file_list not in os.listdir("../user_data/tmp_data"):
+    exist_files = os.listdir("../user_data/tmp_data")
+    to_clean = [1 if file not in exist_files else 0 for file in clean_file_list]
+    if sum(to_clean) != 0:
         prepare_tmp_data(clean_file_list, ori_fea_list)
 
     # 参数定义
-    n_ahead = 3
+    n_ahead = [1, 2, 3]  # 对这几天前的slope特征取平均
     start_time = datetime.now()  # 计时用的
 
     print("start reading data for training...")
@@ -148,7 +150,7 @@ if __name__ == '__main__':
     # 提交
     p_threshold = 0.0034
     submit = pd.DataFrame([])  # 结果初始化
-    for day in pd.date_range("2018-08-01", "2018-08-31"):
+    for day in pd.date_range("2018-07-31", "2018-08-31"):
         result_today = sub[sub["dt"] == day]
         submit = submit.append(result_today[result_today["p"] >= p_threshold], sort=False)
     submit = submit.drop_duplicates(['serial_number', 'model'])
