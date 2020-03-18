@@ -21,7 +21,6 @@ def prepare_tmp_data(tmp_file_needed, ori_fea_list):
         filename = os.path.join('../data/round1_train', get_ori_data_file_name(file))
         ori_data = pd.DataFrame([])
         for chunk in pd.read_csv(filename, chunksize=chunk_size):
-            print(chunk.shape)
             ori_data = pd.concat([ori_data, chunk], axis=0, sort=False)
         data = ori_data[ori_fea_list]
         del ori_data

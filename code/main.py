@@ -104,10 +104,7 @@ if __name__ == '__main__':
                      ['days', 'month', 'days_to_next_holiday', 'days_to_last_holiday']
 
     # 判断是否需要进行临时数据的准备
-    clean_file_list = ["train_2017_7.jl.z", "train_2017_8.jl.z", "train_2017_9.jl.z", "train_2017_10.jl.z",
-                       "train_2017_11.jl.z", "train_2017_12.jl.z", "train_2018_1.jl.z", "train_2018_2.jl.z",
-                       "train_2018_3.jl.z", "train_2018_4.jl.z", "train_2018_5.jl.z", "train_2018_6.jl.z",
-                       "train_2018_7.jl.z"]
+    clean_file_list = ["train_2018_5.jl.z", "train_2018_6.jl.z", "train_2018_7.jl.z"]
     exist_files = os.listdir("../user_data/tmp_data")
     to_clean = [1 if file not in exist_files else 0 for file in clean_file_list]
     if sum(to_clean) != 0:
@@ -135,9 +132,11 @@ if __name__ == '__main__':
         metric=None)
 
     model = train(model, train_x, train_y, val_x=train_x, val_y=train_y, n_early_stop=10, n_verbose=10)
+    # 保存模型结果
+    joblib.dump(model, "../model/model_saved/lgb_round1.pkl")
 
     print("start predict given dataset...")
-    test_set = "A"  # 如果是预测b榜，请改为B
+    test_set = "B"  # 如果是预测b榜，请改为B
     test = read_submit_test_data(n_ahead, test_set)
     test = test.sort_values(['serial_number', 'dt'])
     test = test.drop_duplicates().reset_index(drop=True)
@@ -148,7 +147,7 @@ if __name__ == '__main__':
     result = model.predict_proba(test_x)[:, 1]
     sub['p'] = result
     # 提交
-    p_threshold = 0.0034
+    p_threshold = 0.0077
     submit = pd.DataFrame([])  # 结果初始化
     for day in pd.date_range("2018-07-31", "2018-08-31"):
         result_today = sub[sub["dt"] == day]
