@@ -2,12 +2,11 @@ import numpy as np
 import pandas as pd
 import gc
 import os
-from tqdm import tqdm
 import joblib
 
 
 def prepare_tmp_data(tmp_file_needed, ori_fea_list):
-    tag = pd.read_csv('../data/disk_sample_fault_tag.csv')
+    tag = pd.read_csv('../data/round1_train/disk_sample_fault_tag.csv')
     tag['fault_time'] = pd.to_datetime(tag['fault_time'])
 
     # tag表里面有的硬盘同一天发生几种故障， 删掉多余的记录

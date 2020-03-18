@@ -2,3 +2,6 @@
 *.csv
 !.gitkeep
 !.gitignore
+!fault_disk_dt_last.csv
+!first_use_day.csv
+!disk_sample_fault_tag.csv
