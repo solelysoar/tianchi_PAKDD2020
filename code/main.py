@@ -135,8 +135,8 @@ if __name__ == '__main__':
     # 保存模型结果
     joblib.dump(model, "../model/model_saved/lgb_round1.pkl")
 
-    print("start predict given dataset...")
-    test_set = "B"  # 如果是预测b榜，请改为B
+    test_set = "B"  # 如果是预测A榜，请改为A
+    print("start predict given dataset round1_{}...".format(test_set))
     test = read_submit_test_data(n_ahead, test_set)
     test = test.sort_values(['serial_number', 'dt'])
     test = test.drop_duplicates().reset_index(drop=True)
