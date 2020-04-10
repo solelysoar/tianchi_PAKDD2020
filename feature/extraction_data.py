@@ -8,6 +8,8 @@ import joblib
 def prepare_tmp_data(tmp_file_needed, ori_fea_list):
     tag = pd.read_csv('./data/round1_train/disk_sample_fault_tag.csv')
     tag['fault_time'] = pd.to_datetime(tag['fault_time'])
+    fault_disk_dt_last = pd.read_csv('./user_data/tmp_data/fault_disk_dt_last.csv')
+    fault_disk_dt_last.dt_last = pd.to_datetime(fault_disk_dt_last.dt_last)
 
     # tag表里面有的硬盘同一天发生几种故障， 删掉多余的记录
     tag = tag.drop_duplicates(["manufacturer", "model", "serial_number"])
@@ -27,6 +29,13 @@ def prepare_tmp_data(tmp_file_needed, ori_fea_list):
         del ori_data
         gc.collect()
         data = get_label(data, tag)
+        print("去掉噪音点之前的shape：{}".format(data.shape))
+        # 去掉坏盘的最后一天噪音记录
+        data = data.merge(fault_disk_dt_last, how='left', on=["manufacturer", "model", "serial_number"])
+        data["should_drop"] = data.swifter.progress_bar(enable=True).apply(
+            lambda x: 1 if x["fault_time"] < x["dt"] else 0, axis=1)
+        data = data[data["should_drop"] == 0]
+        print("去掉噪音点之后的shape：{}".format(data.shape))
         joblib.dump(data, os.path.join('./user_data/tmp_data', file))
         print("finished_process: {}".format(file))
         del data
