@@ -65,7 +65,7 @@ def update_dt_first(df_test, new_disk_list):
 def predict(df_test, current_date):
     df_test = df_test.sort_values(['model', 'serial_number', 'dt'])
     df_test = df_test.drop_duplicates().reset_index(drop=True)
-    df_test = build_feature(df_test, n_ahead, ori_fea_list, div_features)
+    df_test = build_feature(df_test, n_ahead, ori_fea_list)
     df_submit = df_test[['manufacturer', 'model', 'serial_number', 'dt', 'days', 'unique_disk_id']]
     df_test_x = df_test[total_features]
     print("category features: {}".format(df_test_x.columns[df_test_x.dtypes == "category"]))
@@ -114,14 +114,9 @@ if __name__ == '__main__':
                     'smart_7raw',
                     'smart_9raw']
     slope_features = [i for i in ori_fea_list if "smart" in i]
-    div_features = ["smart_1", "smart_5", "smart_7", "smart_9", "smart_184", "smart_187", "smart_188", "smart_189",
-                    "smart_192", "smart_193", "smart_194", "smart_195", "smart_198", "smart_199"]
-    total_features = [i for i in ori_fea_list if i not in ['dt','manufacturer']] + \
+    total_features = [i for i in ori_fea_list if i not in ['dt', 'manufacturer']] + \
                      [i+'_slope' for i in slope_features] + \
-                     [i+"_divide" for i in div_features] + \
-                     ['days','month','days_to_next_holiday','days_to_last_holiday','above_zero_count']
-    drop_features = ["smart_187_normalized", "smart_189_normalized","smart_187raw"]
-    feature_name = [i for i in total_features if i not in drop_features]
+                     ['days', 'month', 'days_to_next_holiday', 'days_to_last_holiday']
 
     # 判断是否需要进行临时数据的准备
     clean_file_list = ["train_2018_5.jl.z", "train_2018_6.jl.z", "train_2018_7.jl.z"]
@@ -138,10 +133,10 @@ if __name__ == '__main__':
     print("start reading data for training...")
     data_list = []
     train_data = read_data(["2018_5", "2018_6"], only_positive_month=[])
-    train_data = build_feature(train_data, n_ahead, ori_fea_list, slope_features, div_features)
+    train_data = build_feature(train_data, n_ahead, ori_fea_list, slope_features)
     data_list.append(train_data)
     train_data = read_data(["2018_6", "2018_7"], only_positive_month=[])
-    train_data = build_feature(train_data, n_ahead, ori_fea_list, slope_features, div_features)
+    train_data = build_feature(train_data, n_ahead, ori_fea_list, slope_features)
     data_list.append(train_data)
     del train_data
     gc.collect()
@@ -161,7 +156,7 @@ if __name__ == '__main__':
         print("this time use No.{} data".format(i))
         train_data = data_list[i]
         train_y = train_data["label"].values
-        train_x = train_data[feature_name]
+        train_x = train_data[total_features]
         del train_data
         gc.collect()
 

@@ -30,7 +30,7 @@ def distance_to_last_holiday(x, holidays):
     return distance.min()
 
 
-def build_feature(df, day_ahead, ori_fea_list, slop_features, divide_features):
+def build_feature(df, day_ahead, ori_fea_list, slop_features):
     """
     针对df对部分特征进行transform，并生成新的衍生特征
     :param df: 原始数据
