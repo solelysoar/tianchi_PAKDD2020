@@ -9,7 +9,6 @@ from lightgbm.sklearn import LGBMClassifier
 
 from feature.generation import build_feature
 from feature.extraction_data import prepare_tmp_data
-from model.lgb_model import train
 import warnings
 warnings.filterwarnings("ignore")
 

@@ -6,9 +6,9 @@ import joblib
 
 
 def prepare_tmp_data(tmp_file_needed, ori_fea_list):
-    tag = pd.read_csv('./data/round1_train/disk_sample_fault_tag.csv')
+    tag = pd.read_csv('./user_data/disk_sample_fault_concat_tag.csv')
     tag['fault_time'] = pd.to_datetime(tag['fault_time'])
-    fault_disk_dt_last = pd.read_csv('./user_data/tmp_data/fault_disk_dt_last.csv')
+    fault_disk_dt_last = pd.read_csv('./user_data/tmp_data/fault_disk_dt_last_updated.csv')
     fault_disk_dt_last.dt_last = pd.to_datetime(fault_disk_dt_last.dt_last)
 
     # tag表里面有的硬盘同一天发生几种故障， 删掉多余的记录
