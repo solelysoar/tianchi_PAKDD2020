@@ -50,7 +50,7 @@ def build_feature(df, day_ahead, ori_fea_list, slop_features, divide_features):
     first_day = pd.read_csv('./user_data/tmp_data/first_use_day_updated.csv')  # <----改路径！
     first_day.dt_first = pd.to_datetime(first_day.dt_first)
 
-    fault_disk_dt_last = pd.read_csv('./user_data/tmp_data/fault_disk_dt_last.csv')
+    fault_disk_dt_last = pd.read_csv('./user_data/tmp_data/fault_disk_dt_last_updated.csv')
     fault_disk_dt_last.dt_last = pd.to_datetime(fault_disk_dt_last.dt_last)
 
     # 特征定义
