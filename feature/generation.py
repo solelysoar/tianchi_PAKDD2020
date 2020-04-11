@@ -41,13 +41,13 @@ def build_feature(df, day_ahead, ori_fea_list, slop_features, divide_features):
     :return: 加入了新特征的数据
     """
     # 读取需要的文件
-    tag = pd.read_csv('./data/round1_train/disk_sample_fault_tag.csv')  # <----改路径！
+    tag = pd.read_csv('./user_data/tmp_data/disk_sample_fault_concat_tag.csv')  # <----改路径！
     tag['fault_time'] = pd.to_datetime(tag['fault_time'])
     tag['tag'] = tag['tag'].astype(str)
     tag = tag.groupby(['serial_number', 'fault_time', 'model'])['tag'].apply(lambda x: '|'.join(x)).reset_index()
     tag.columns = ['serial_number', 'fault_time_1', 'model', 'tag']
 
-    first_day = pd.read_csv('./user_data/tmp_data/first_use_day.csv')  # <----改路径！
+    first_day = pd.read_csv('./user_data/tmp_data/first_use_day_updated.csv')  # <----改路径！
     first_day.dt_first = pd.to_datetime(first_day.dt_first)
 
     fault_disk_dt_last = pd.read_csv('./user_data/tmp_data/fault_disk_dt_last.csv')
@@ -63,13 +63,14 @@ def build_feature(df, day_ahead, ori_fea_list, slop_features, divide_features):
     # 特征提取
     df = df.merge(first_day, how='left', on=["manufacturer", "model", "serial_number"])
     # 数零值
-    zero_count_features = ["smart_5raw", "smart_187raw", "smart_188raw", "smart_189raw", "smart_197raw", "smart_198raw"]
-    for feature in zero_count_features:
-        df[feature + "_above_zero"] = df[feature].apply(lambda x: 1 if x > 0 else 0)
-    df["above_zero_count"] = df[[i + "_above_zero" for i in zero_count_features]].sum(axis=1)
-    # 增加除法特征
-    for feature in divide_features:
-        df[feature + "_divide"] = df[feature + "raw"] / (df[feature + "_normalized"] + 0.1)
+    # zero_count_features = ["smart_5raw", "smart_187raw", "smart_188raw",
+    # "smart_189raw", "smart_197raw", "smart_198raw"]
+    # for feature in zero_count_features:
+    #     df[feature + "_above_zero"] = df[feature].apply(lambda x: 1 if x > 0 else 0)
+    # df["above_zero_count"] = df[[i + "_above_zero" for i in zero_count_features]].sum(axis=1)
+    # # 增加除法特征
+    # for feature in divide_features:
+    #     df[feature + "_divide"] = df[feature + "raw"] / (df[feature + "_normalized"] + 0.1)
     print("特征做log变换")
     for column in log_features:
         df[column] = df[column].apply(lambda x: np.log1p(x))

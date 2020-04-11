@@ -6,7 +6,7 @@ import joblib
 
 
 def prepare_tmp_data(tmp_file_needed, ori_fea_list):
-    tag = pd.read_csv('./user_data/disk_sample_fault_concat_tag.csv')
+    tag = pd.read_csv('./user_data/tmp_data/disk_sample_fault_concat_tag.csv')
     tag['fault_time'] = pd.to_datetime(tag['fault_time'])
     fault_disk_dt_last = pd.read_csv('./user_data/tmp_data/fault_disk_dt_last_updated.csv')
     fault_disk_dt_last.dt_last = pd.to_datetime(fault_disk_dt_last.dt_last)

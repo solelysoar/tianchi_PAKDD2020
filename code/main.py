@@ -194,7 +194,7 @@ if __name__ == '__main__':
             model_index += 1
 
     # 预测部份
-    test_data_dir = "/tcdata/disk_sample_smart_log_round2"
+    test_data_dir = "./data/disk_sample_smart_log_round2"
     test_file_list = os.listdir(test_data_dir)
 
     submit = pd.DataFrame([])
