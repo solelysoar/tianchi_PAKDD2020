@@ -4,6 +4,7 @@ import pandas as pd
 import joblib
 import gc
 import os
+import zipfile
 from datetime import datetime, timedelta
 from lightgbm.sklearn import LGBMClassifier
 
@@ -217,5 +218,8 @@ if __name__ == '__main__':
     # 保存结果
     submit[['manufacturer', 'model', 'serial_number', 'dt']].to_csv(
         "./prediction_result/predictions.csv", index=False, header=None)
+    newZip = zipfile.ZipFile('./prediction_result/result.zip', 'w', zipfile.ZIP_DEFLATED)
+    newZip.write('./prediction_result/predictions.csv')
+    newZip.close()
     print("prediction done, please head to prediction_result folder to check!")
     print("total time used: {}".format(datetime.now() - start_time))
