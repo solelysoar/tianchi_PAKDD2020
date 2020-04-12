@@ -213,12 +213,6 @@ if __name__ == '__main__':
         print(next_predict.shape)
         submit = pd.concat([submit, next_predict], axis=0, sort=False)
     print("total submit disk no: {}".format(len(submit.drop_duplicates(["manufacturer", "model", "serial_number"]))))
-    # 统计预测结果中的新盘数量
-    submit["is_new_disk"] = submit["unique_disk_id"].apply(lambda x: 1 if x in new_disks else 0)
-    print("no. of new disks in result: {}".format(
-        submit.drop_duplicates(["manufacturer", "model", "serial_number"])["is_new_disk"].sum()))
-    # 去除结果中的新盘
-    # submit = submit[submit["is_new_disk"] == 0]
 
     # 保存结果
     submit[['manufacturer', 'model', 'serial_number', 'dt']].to_csv(
