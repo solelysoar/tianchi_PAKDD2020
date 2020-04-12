@@ -65,7 +65,7 @@ def update_dt_first(df_test, new_disk_list):
 def predict(df_test, current_date):
     df_test = df_test.sort_values(['model', 'serial_number', 'dt'])
     df_test = df_test.drop_duplicates().reset_index(drop=True)
-    df_test = build_feature(df_test, n_ahead, ori_fea_list)
+    df_test = build_feature(df_test, n_ahead, ori_fea_list, slope_features)
     df_submit = df_test[['manufacturer', 'model', 'serial_number', 'dt', 'days', 'unique_disk_id']]
     df_test_x = df_test[total_features]
     print("category features: {}".format(df_test_x.columns[df_test_x.dtypes == "category"]))
@@ -130,63 +130,63 @@ if __name__ == '__main__':
     max_ahead = max(n_ahead) + 1
     start_time = datetime.now()  # 计时用的
 
-    print("start reading data for training...")
-    data_list = []
-    train_data = read_data(["2018_5", "2018_6"], only_positive_month=[])
-    train_data = build_feature(train_data, n_ahead, ori_fea_list, slope_features)
-    data_list.append(train_data)
-    train_data = read_data(["2018_6", "2018_7"], only_positive_month=[])
-    train_data = build_feature(train_data, n_ahead, ori_fea_list, slope_features)
-    data_list.append(train_data)
-    del train_data
-    gc.collect()
-
-    params = [
-        {
-            "learning_rate": [0.001, 0.001, 0.001, 0.001, 0.001, 0.01, 0.1],
-            "n_estimators": [100, 150, 200, 100, 100, 100, 100],
-            "num_leaves": [127, 127, 127, 65, 255, 127, 127]},
-        {
-            "learning_rate": [0.001, 0.001, 0.001, 0.001, 0.001, 0.01, 0.1],
-            "n_estimators": [100, 150, 200, 100, 100, 100, 100],
-            "num_leaves": [127, 127, 127, 65, 255, 127, 127]}
-    ]  # 第一组变量是给第一组数据的，第二组变量组合是给第二组数据的
-    model_index = 0
-    for i in range(len(data_list)):
-        print("this time use No.{} data".format(i))
-        train_data = data_list[i]
-        train_y = train_data["label"].values
-        train_x = train_data[total_features]
-        del train_data
-        gc.collect()
-
-        for j in range(len(params[i]["learning_rate"])):
-            i_params = params[i]
-            print("this time training: learning_rate = {}, n_estimators = {}, num_leaves = {}".format(
-                i_params["learning_rate"][j], i_params["n_estimators"][j], i_params["num_leaves"][j]))
-            print("start training model_{}".format(model_index))
-            clf = LGBMClassifier(
-                learning_rate=i_params["learning_rate"][j],
-                n_estimators=i_params["n_estimators"][j],
-                num_leaves=i_params["num_leaves"][j],
-                subsample=0.8,
-                colsample_bytree=0.8,
-                random_state=2019,
-                is_unbalenced='True',
-                metric=None)
-
-            print('************** training **************')
-            print(train_x.shape)
-            clf.fit(
-                train_x, train_y,
-                eval_set=[(train_x, train_y)],
-                eval_metric='auc',
-                early_stopping_rounds=10,
-                verbose=10
-            )
-            # 保存模型
-            joblib.dump(clf, './model/model_saved/lgb_voting_{}.pkl'.format(model_index))
-            model_index += 1
+    # print("start reading data for training...")
+    # data_list = []
+    # train_data = read_data(["2018_5", "2018_6"], only_positive_month=[])
+    # train_data = build_feature(train_data, n_ahead, ori_fea_list, slope_features)
+    # data_list.append(train_data)
+    # train_data = read_data(["2018_6", "2018_7"], only_positive_month=[])
+    # train_data = build_feature(train_data, n_ahead, ori_fea_list, slope_features)
+    # data_list.append(train_data)
+    # del train_data
+    # gc.collect()
+    #
+    # params = [
+    #     {
+    #         "learning_rate": [0.001, 0.001, 0.001, 0.001, 0.001, 0.01, 0.1],
+    #         "n_estimators": [100, 150, 200, 100, 100, 100, 100],
+    #         "num_leaves": [127, 127, 127, 65, 255, 127, 127]},
+    #     {
+    #         "learning_rate": [0.001, 0.001, 0.001, 0.001, 0.001, 0.01, 0.1],
+    #         "n_estimators": [100, 150, 200, 100, 100, 100, 100],
+    #         "num_leaves": [127, 127, 127, 65, 255, 127, 127]}
+    # ]  # 第一组变量是给第一组数据的，第二组变量组合是给第二组数据的
+    # model_index = 0
+    # for i in range(len(data_list)):
+    #     print("this time use No.{} data".format(i))
+    #     train_data = data_list[i]
+    #     train_y = train_data["label"].values
+    #     train_x = train_data[total_features]
+    #     del train_data
+    #     gc.collect()
+    #
+    #     for j in range(len(params[i]["learning_rate"])):
+    #         i_params = params[i]
+    #         print("this time training: learning_rate = {}, n_estimators = {}, num_leaves = {}".format(
+    #             i_params["learning_rate"][j], i_params["n_estimators"][j], i_params["num_leaves"][j]))
+    #         print("start training model_{}".format(model_index))
+    #         clf = LGBMClassifier(
+    #             learning_rate=i_params["learning_rate"][j],
+    #             n_estimators=i_params["n_estimators"][j],
+    #             num_leaves=i_params["num_leaves"][j],
+    #             subsample=0.8,
+    #             colsample_bytree=0.8,
+    #             random_state=2019,
+    #             is_unbalenced='True',
+    #             metric=None)
+    #
+    #         print('************** training **************')
+    #         print(train_x.shape)
+    #         clf.fit(
+    #             train_x, train_y,
+    #             eval_set=[(train_x, train_y)],
+    #             eval_metric='auc',
+    #             early_stopping_rounds=10,
+    #             verbose=10
+    #         )
+    #         # 保存模型
+    #         joblib.dump(clf, './model/model_saved/lgb_voting_{}.pkl'.format(model_index))
+    #         model_index += 1
 
     # 预测部份
     test_data_dir = "./data/disk_sample_smart_log_round2"

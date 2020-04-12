@@ -62,15 +62,6 @@ def build_feature(df, day_ahead, ori_fea_list, slop_features):
 
     # 特征提取
     df = df.merge(first_day, how='left', on=["manufacturer", "model", "serial_number"])
-    # 数零值
-    # zero_count_features = ["smart_5raw", "smart_187raw", "smart_188raw",
-    # "smart_189raw", "smart_197raw", "smart_198raw"]
-    # for feature in zero_count_features:
-    #     df[feature + "_above_zero"] = df[feature].apply(lambda x: 1 if x > 0 else 0)
-    # df["above_zero_count"] = df[[i + "_above_zero" for i in zero_count_features]].sum(axis=1)
-    # # 增加除法特征
-    # for feature in divide_features:
-    #     df[feature + "_divide"] = df[feature + "raw"] / (df[feature + "_normalized"] + 0.1)
     print("特征做log变换")
     for column in log_features:
         df[column] = df[column].apply(lambda x: np.log1p(x))
